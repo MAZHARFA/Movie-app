@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
 import Search from "../Components/search";
 import Spinner from "../Components/Spinner";
@@ -24,8 +24,7 @@ const App = () => {
   const [movieList, setMovieList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [trendingMovies, setTrendingMovies] = useState<Document[]>([]);
-
+  const [trendingMovies, setTrendingMovies] = useState([]);
   // debounce the search term to prevent many API request
   // by waiting for the user to stop typing  for 500ms
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
@@ -42,7 +41,6 @@ const App = () => {
 
   const fetchMovies = async (query = "") => {
     setIsLoading(true);
-    
 
     try {
       const endpoint = query
@@ -116,13 +114,12 @@ const App = () => {
             <Spinner />
           ) : (
             <ul>
-            {movieList.map((movie) => (
-              <li key={movie.id}>
-                <MoiveCard movie={movie} />
-              </li>
-            ))}
-          </ul>
-          
+              {movieList.map((movie) => (
+                <li key={movie.id}>
+                  <MoiveCard movie={movie} />
+                </li>
+              ))}
+            </ul>
           )}
         </section>
       </div>
