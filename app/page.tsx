@@ -1,7 +1,6 @@
 "use client"
 import React, { useState, useEffect } from "react";
 import Search from "../Components/search";
-
 import Spinner from "../Components/Spinner";
 import { toast } from "react-toastify";
 import { useDebounce } from "react-use";
@@ -25,7 +24,8 @@ const App = () => {
   const [movieList, setMovieList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState<Document[]>([]);
+
   // debounce the search term to prevent many API request
   // by waiting for the user to stop typing  for 500ms
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
