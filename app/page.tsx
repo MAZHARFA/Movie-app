@@ -4,20 +4,18 @@ import Search from "../Components/search";
 import Spinner from "../Components/Spinner";
 import { toast } from "react-toastify";
 import { useDebounce } from "react-use";
-import { getTrendingMovies, updateSearchCount } from "../appwrite.js";
+import { getTrendingMovies, updateSearchCount } from "../appwrite";
 import MoiveCard from "../Components/MoiveCard";
-
 
 type Movie = {
   id: string;
   $id?: string;
   title: string;
-  vote_average: number; 
-  poster_path: string;  
-  release_date: string; 
-  original_language: string; 
-  poster_url?: string; 
-  [key: string]: any;         
+  vote_average: number;
+  poster_path: string;
+  release_date: string;
+  original_language: string;
+  poster_url?: string;
 };
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
@@ -33,42 +31,33 @@ const API_OPTIONS = {
 const App = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
   const [movieList, setMovieList] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
   const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
 
-  // Debounce search term
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
 
-  // Load trending movies
   const loadTrendingMovies = async () => {
     try {
       const movies = await getTrendingMovies();
-      if (movies) {
-        const mappedMovies: Movie[] = movies.map((doc: any) => ({
-          id: doc.$id, // Assign Appwrite $id to the required id field
-          title: doc.title,
-          vote_average: doc.vote_average || 0, // Default value if missing
-          poster_path: doc.poster_path || "", // Default if missing
-          release_date: doc.release_date || "", // Default if missing
-          original_language: doc.original_language || "", // Default if missing
-          poster_url: doc.poster_url || "", // Optional field
-        }));
-        setTrendingMovies(mappedMovies);
-      } else {
-        setTrendingMovies([]);
-      }
+      const mappedMovies: Movie[] = movies.map((doc: any) => ({
+        id: doc.movie_id,
+        title: doc.title,
+        vote_average: doc.vote_average,
+        poster_path: doc.poster_path,
+        release_date: doc.release_date,
+        original_language: doc.original_language,
+        poster_url: doc.poster_url,
+        $id: doc.$id,
+      }));
+      setTrendingMovies(mappedMovies);
     } catch (error) {
       toast.error(`Error Fetching Trending Movies: ${error}`);
-      toast("Error Fetching Movies");
     }
   };
 
   const fetchMovies = async (query = "") => {
     setIsLoading(true);
-
     try {
       const endpoint = query
         ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
@@ -76,13 +65,12 @@ const App = () => {
       const response = await fetch(endpoint, API_OPTIONS);
       const data = await response.json();
 
-      if (data.Response === "False") {
-        toast("Error occurred");
+      if (!data || data.success === false || !data.results) {
+        toast.error("No movies found.");
         setMovieList([]);
         return;
       }
 
-      // Ensure required fields for MoiveCard
       const mappedMovies = data.results.map((movie: any) => ({
         id: movie.id,
         title: movie.title,
@@ -90,17 +78,16 @@ const App = () => {
         poster_path: movie.poster_path,
         release_date: movie.release_date,
         original_language: movie.original_language,
-        poster_url: movie.poster_url, // Optional, if using Appwrite
+        poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
       }));
 
       setMovieList(mappedMovies);
 
-      if (query && data.results?.length > 0) {
+      if (query && data.results.length > 0) {
         await updateSearchCount(query, data.results[0]);
       }
     } catch (error) {
-      toast.error(`Error fetching Movies: ${error}`);
-      toast("Error fetching Movies");
+      toast.error(`Error fetching movies: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +104,6 @@ const App = () => {
   return (
     <main>
       <div className="pattern" />
-
       <div className="wrapper">
         <header>
           <img src="./logo.jpeg" alt="background" />
@@ -126,7 +112,6 @@ const App = () => {
             Find <span className="text-gradient">Movies</span> you'll enjoy
             without hassle
           </h1>
-
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
 
