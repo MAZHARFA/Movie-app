@@ -1,3 +1,5 @@
+"use client";
+
 import { Client, Databases, Query, ID } from "appwrite";
 
 const PROJECT_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
@@ -48,7 +50,7 @@ export const getTrendingMovies = async () => {
     ]);
     return result.documents;
   } catch (error) {
-    console.error("Appwrite fetch error:", error.message || error);
+    console.error(" Appwrite fetch error:", error.message || error);
     return [];
   }
 };
