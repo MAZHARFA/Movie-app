@@ -21,7 +21,7 @@ Installation
 
 Navigate to the project directory:
 
-cd MOVIE-APP
+cd Movie-apps
 
 Install dependencies:
 
